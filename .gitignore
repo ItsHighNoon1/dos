@@ -1,2 +1,4 @@
 .vscode/
-main.exe
+obj/
+lst/
+dos/
