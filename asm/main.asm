@@ -3,6 +3,7 @@ global _start
 global _exit
 
 segment code
+
 _start:
     mov ax,data
     mov ds,ax
@@ -25,34 +26,26 @@ _start:
     int 0x21
 
 epic_loop:
-    mov ax,0xa000
+    extern framebuffer
+    mov ax,framebuffer
     mov es,ax
-    mov cx,255
-    mov di,320*200
-    busy_loop:
-        dec cx
-        dec cx
-        dec cx
-        dec cx
-        dec cx
-        dec di
-        jnz busy_loop
-    mov cx,255
-    mov di,320*200
+    mov cx,1
+    mov di,0
+    
     framebuffer_loop:
         mov es:[di],cl
-        dec cx
-        jnz cx_dont_reset
-            mov cx,255
+        inc cx
+        cmp cx,5
+        jb cx_dont_reset
+            mov cx,1
         cx_dont_reset:
-        dec di
-        jnz framebuffer_loop
-    mov cx,255
-    mov di,320*200
-    framebuffer_loop2:
-        mov es:[di],ch
-        dec di
-        jnz framebuffer_loop2
+        inc di
+        cmp di,320 * 200
+        jb framebuffer_loop
+
+    extern vga_flip
+    call vga_flip
+    
     jmp epic_loop
 
 _exit:
@@ -75,5 +68,5 @@ segment data
     msg_exit db "stopped game", 13, 10, '$'
 
 segment stack stack
-    resb 256
-_stack:
+    resb 1024
+_stack: ; stack grows downwards
